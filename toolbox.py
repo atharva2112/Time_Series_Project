@@ -13,6 +13,12 @@ import statistics
 from tabulate import tabulate
 from sklearn.model_selection import train_test_split
 #%%
+def difference(dataset, interval =1):
+    diff = []
+    for i in range(interval, len(dataset)):
+        value = dataset[i]- dataset[i-interval]
+        diff.append(value)
+    return diff
 # Find correlation coefficient
 def correlation_coefficent_cal(x,y):
     numerator = sum((x-np.mean(x))*(y-np.mean(y)))
@@ -53,7 +59,7 @@ def Cal_rolling_mean_var(column):
     plt.title("Rolling Mean Graph")
     plt.subplot(3, 1, 3)
     plt.plot(var_list)
-    plt.title("Rolling Mean Graph")
+    plt.title("Rolling Variance Graph")
     plt.show()
 #%%
 # ADF test
@@ -161,7 +167,7 @@ def average_forecasting(tr_data,h=None,q_val = False):
     plt.show()
     
     if q_val==True:
-        rk= acf(error[:len(X_train)],5)
+        rk= stem_plot(error[:len(X_train)],5)
         qv = (len(tr_data))*(rk**2)
         print("The Q-value for the training set:",qv)
         return qv
@@ -188,7 +194,7 @@ def N_forecasting(tr_data,h=None,q_val = False):
     print("The variance for prediction errors:",np.var(error[:len(X_train)]))
      
     for i in range(len(X_test)):
-        forecast.append(forecast[-1])
+        forecast.append(X_train[-1])
         value1 = X_test[i]-value
         error.append(value1)
         er_sqd = [i ** 2 for i in error]
