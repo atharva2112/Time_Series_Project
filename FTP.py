@@ -3,7 +3,7 @@ from multiprocessing.spawn import import_main_path
 from unicodedata import category
 from importlib_metadata import distribution
 import pandas as pd
-from Lab4 import X_test, X_train
+# from Lab4 import X_test, X_train
 import numpy as np
 import toolbox as tx
 import matplotlib.pyplot as plt
@@ -177,4 +177,12 @@ sns.pairplot(daily_usage_df,kind="kde").set(title='Daily Usage')
 # %%
 df1 = hourly_usage_df.corr()
 sns.heatmap(df1,annot=True).set(title = "Correlation matrix for hourly Usage ")
+# %%
+tx.N_forecasting(hourly_usage_df.COST,table=True,q_val=True)
+# %%
+tx.d_forecasting(hourly_usage_df.COST,table=True,q_val=True)
+# %%
+tx.ses_forecasting(hourly_usage_df.COST,table=True,q_val=True,alpha=0.5)
+# %%
+tx.ma(hourly_usage_df.COST,3)
 # %%
