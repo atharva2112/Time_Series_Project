@@ -57,7 +57,7 @@ def Cal_rolling_mean_var(column):
     plt.title("Rolling Mean Graph")
     plt.subplot(3, 1, 3)
     plt.plot(var_list)
-    plt.title("Rolling Mean Graph")
+    plt.title("Rolling Variance Graph")
     plt.show()
 #%%
 # ADF test
@@ -174,6 +174,7 @@ def average_forecasting(tr_data, h=None, q_val=False, table=False, index=None):
     ax.set_ylabel("Samples")
     ax.set_xlabel("Month")
     ax.set_title("Average Method Forecasting")
+    plt.xticks(rotation = 90)
     plt.show()
 
     if q_val == True:
@@ -245,6 +246,7 @@ def N_forecasting(tr_data,h=None,q_val = False,table = False,index = None):
     ax.set_ylabel("Samples")
     ax.set_xlabel("Month")
     ax.set_title("Naive Method Forecasting")
+    plt.xticks(rotation = 90)
     plt.show()
     
     if q_val==True:
@@ -314,6 +316,7 @@ def d_forecasting(tr_data,h=None,q_val = False,table = False,index = None):
     ax.set_ylabel("Samples")
     ax.set_xlabel("Month")
     ax.set_title("Drift Method Forecasting")
+    plt.xticks(rotation = 90)
     plt.show()
     
     if q_val==True:
@@ -384,6 +387,7 @@ def ses_forecasting(tr_data,alpha,h=None,q_val = False,table = False,index = Non
     ax.set_ylabel("Magnitude")
     ax.set_xlabel(f"Index\n alpha:{alpha}")
     ax.set_title("SES Method Forecasting")
+    plt.xticks(rotation = 90)
     plt.show()
     if q_val==True:
         rk= stem_plot(error[2:],5)
@@ -652,8 +656,8 @@ def ARMA_coeff_simul_dat(df):
     print(model.summary())
 
     # Prediction
-    model_hat = model.predict(start=0, end=len(df) - 1)
-    e = y - model_hat
+    model_hat = model.predict(start=0, end=len(train) - 1)
+    e = y[1:] - model_hat[:-1]
     re = stem_plot(e, lags, name="Errors")
     Q = len(y) * np.sum(np.square(re[lags:]))
     DOF = lags - na - nb
@@ -676,6 +680,7 @@ def ARMA_coeff_simul_dat(df):
     plt.legend()
     plt.title("statsmodel ARMA process generation, parameter estimation and prediction")
     plt.show()
+    return model_hat,e
 # %%
 def LSE():
     np.random.seed(42)
@@ -1119,69 +1124,69 @@ def difference(dataset, interval =1):
         diff.append(value)
     return diff
 # %%
-# SES alternative
-from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
-y_hat_avg = test.copy()
-fit2 = SimpleExpSmoothing(np.asarray(train['Count'])).fit(smoothing_level=0.6,optimized=False)
-y_hat_avg['SES'] = fit2.forecast(len(test))
-plt.figure(figsize=(16,8))
-plt.plot(train['Count'], label='Train')
-plt.plot(test['Count'], label='Test')
-plt.plot(y_hat_avg['SES'], label='SES')
-plt.legend(loc='best')
-plt.show()
+# # SES alternative
+# from statsmodels.tsa.api import ExponentialSmoothing, SimpleExpSmoothing, Holt
+# y_hat_avg = test.copy()
+# fit2 = SimpleExpSmoothing(np.asarray(train['Count'])).fit(smoothing_level=0.6,optimized=False)
+# y_hat_avg['SES'] = fit2.forecast(len(test))
+# plt.figure(figsize=(16,8))
+# plt.plot(train['Count'], label='Train')
+# plt.plot(test['Count'], label='Test')
+# plt.plot(y_hat_avg['SES'], label='SES')
+# plt.legend(loc='best')
+# plt.show()
 #%%
-# Holt winter
-y_hat_avg = test.copy()
-fit1 = ExponentialSmoothing(np.asarray(train['Count']) ,seasonal_periods=7 ,trend='add', seasonal='add',).fit()
-y_hat_avg['Holt_Winter'] = fit1.forecast(len(test))
-plt.figure(figsize=(16,8))
-plt.plot( train['Count'], label='Train')
-plt.plot(test['Count'], label='Test')
-plt.plot(y_hat_avg['Holt_Winter'], label='Holt_Winter')
-plt.legend(loc='best')
-plt.show()
+# # Holt winter
+# y_hat_avg = test.copy()
+# fit1 = ExponentialSmoothing(np.asarray(train['Count']) ,seasonal_periods=7 ,trend='add', seasonal='add',).fit()
+# y_hat_avg['Holt_Winter'] = fit1.forecast(len(test))
+# plt.figure(figsize=(16,8))
+# plt.plot( train['Count'], label='Train')
+# plt.plot(test['Count'], label='Test')
+# plt.plot(y_hat_avg['Holt_Winter'], label='Holt_Winter')
+# plt.legend(loc='best')
+# plt.show()
 #%%
-# Sarima
-y_hat_avg = test.copy()
-fit1 = sm.tsa.statespace.SARIMAX(train.Count, order=(2, 1, 4),seasonal_order=(0,1,1,7)).fit()
-y_hat_avg['SARIMA'] = fit1.predict(start="2013-11-1", end="2013-12-31", dynamic=True)
-plt.figure(figsize=(16,8))
-plt.plot( train['Count'], label='Train')
-plt.plot(test['Count'], label='Test')
-plt.plot(y_hat_avg['SARIMA'], label='SARIMA')
-plt.legend(loc='best')
-plt.show()
+# # Sarima
+# # y_hat_avg = test.copy()
+# fit1 = sm.tsa.statespace.SARIMAX(train.Count, order=(2, 1, 4),seasonal_order=(0,1,1,7)).fit()
+# y_hat_avg['SARIMA'] = fit1.predict(start="2013-11-1", end="2013-12-31", dynamic=True)
+# plt.figure(figsize=(16,8))
+# plt.plot( train['Count'], label='Train')
+# plt.plot(test['Count'], label='Test')
+# plt.plot(y_hat_avg['SARIMA'], label='SARIMA')
+# plt.legend(loc='best')
+# plt.show()
 #%%
 # holt Linear trend
-y_hat_avg = test.copy()
+# y_hat_avg = test.copy()
 
-fit1 = Holt(np.asarray(train['Count'])).fit(smoothing_level = 0.3,smoothing_slope = 0.1)
-y_hat_avg['Holt_linear'] = fit1.forecast(len(test))
+# fit1 = Holt(np.asarray(train['Count'])).fit(smoothing_level = 0.3,smoothing_slope = 0.1)
+# y_hat_avg['Holt_linear'] = fit1.forecast(len(test))
 
-plt.figure(figsize=(16,8))
-plt.plot(train['Count'], label='Train')
-plt.plot(test['Count'], label='Test')
-plt.plot(y_hat_avg['Holt_linear'], label='Holt_linear')
-plt.legend(loc='best')
-plt.show()
-#%%
-def cat_var_checker(df, dtype='object'):
-    # Get the dataframe of categorical variables and their number of unique value
-    df_cat = pd.DataFrame([[var, df[var].nunique(dropna=False)]
-                           # If the data type is dtype
-                           for var in df.columns if df[var].dtype == dtype],
-                          columns=['var', 'nunique'])
+# plt.figure(figsize=(16,8))
+# plt.plot(train['Count'], label='Train')
+# plt.plot(test['Count'], label='Test')
+# plt.plot(y_hat_avg['Holt_linear'], label='Holt_linear')
+# plt.legend(loc='best')
+# plt.show()
+# #%%
+# def cat_var_checker(df, dtype='object'):
+#     # Get the dataframe of categorical variables and their number of unique value
+#     df_cat = pd.DataFrame([[var, df[var].nunique(dropna=False)]
+#                            # If the data type is dtype
+#                            for var in df.columns if df[var].dtype == dtype],
+#                           columns=['var', 'nunique'])
     
-    # Sort df_cat in accending order of the number of unique value
-    df_cat = df_cat.sort_values(by='nunique', ascending=False).reset_index(drop=True)
+#     # Sort df_cat in accending order of the number of unique value
+#     df_cat = df_cat.sort_values(by='nunique', ascending=False).reset_index(drop=True)
     
-    return df_cat
-# %%
-def common_var_checker(df_train, df_val, df_test, target):
-    # Get the dataframe of common variables between the training, validation and test data
-    df_common_var = pd.DataFrame(np.intersect1d(np.intersect1d(df_train.columns, df_val.columns), np.union1d(df_test.columns, [target])),
-                                 columns=['common var'])
+#     return df_cat
+# # %%
+# def common_var_checker(df_train, df_val, df_test, target):
+#     # Get the dataframe of common variables between the training, validation and test data
+#     df_common_var = pd.DataFrame(np.intersect1d(np.intersect1d(df_train.columns, df_val.columns), np.union1d(df_test.columns, [target])),
+#                                  columns=['common var'])
                 
-    return df_common_var
+#     return df_common_var
 # %%
